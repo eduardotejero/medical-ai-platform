@@ -4,12 +4,13 @@ Clinical AI Platform integrating Machine Learning, Computer Vision, HL7/FHIR, an
 
 ## Overview
 
-End-to-end medical data platform built to demonstrate production-grade Python development for MedTech applications. Includes statistical analysis, ML model training with experiment tracking, REST API, and interactive dashboards.
+End-to-end medical data platform built to demonstrate production-grade Python development for MedTech applications. Includes statistical analysis, ML model training with experiment tracking, REST API, interactive dashboards, and computer vision pipeline for dermatology image analysis.
 
 ## Stack
 
 - **Backend:** Python 3.11, FastAPI, SQLAlchemy, PostgreSQL, Redis
 - **ML:** Scikit-learn, MLflow
+- **Computer Vision:** PyTorch, ResNet18, YOLOv8, OpenCV
 - **Dashboard:** Streamlit, Plotly
 - **Storage:** AWS S3
 - **Infrastructure:** Docker, docker-compose
@@ -22,6 +23,9 @@ End-to-end medical data platform built to demonstrate production-grade Python de
 | FastAPI Docs | http://localhost:8000/docs | Auto-generated API docs |
 | Streamlit | http://localhost:8501 | Clinical dashboard |
 | MLflow | http://localhost:5000 | Experiment tracking |
+| CV Service | http://localhost:8001 | Computer Vision API |
+| CV Service Docs | http://localhost:8001/docs | CV API docs |
+| CV Dashboard | http://localhost:8502 | Computer Vision dashboard |
 | PostgreSQL | localhost:5432 | Database |
 
 ## Dataset
@@ -50,6 +54,13 @@ Models trained: Logistic Regression, Random Forest, Gradient Boosting
 
 Experiments tracked with MLflow. Models stored in AWS S3.
 
+## Computer Vision
+
+- **Architecture:** ResNet18 with transfer learning (ImageNet weights)
+- **Dataset:** HAM10000 — 700 samples (100 per class)
+- **Detection:** YOLOv8n
+- **Training:** 5 epochs, Adam optimizer, lr=0.001
+
 ## Quick Start
 ```bash
 git clone https://github.com/TU_USERNAME/medical-ai-platform.git
@@ -72,6 +83,15 @@ medical-ai-platform/
 │   ├── mlflow_tracking.py    # Experiment tracking
 │   ├── aws_storage.py        # AWS S3 integration
 │   └── load_dataset.py       # HAM10000 data loader
+├── services/
+│   └── cv-service/
+│       ├── main.py           # CV FastAPI application
+│       ├── classifier.py     # ResNet18 CNN classifier
+│       ├── detector.py       # YOLOv8 detector
+│       ├── preprocessor.py   # OpenCV preprocessing
+│       ├── dashboard.py      # Streamlit CV dashboard
+│       ├── train_cnn.py      # CNN training
+│       └── aws_storage.py    # S3 image storage
 ├── database/
 │   ├── schema.sql            # PostgreSQL schema
 │   └── init.sql              # Seed data

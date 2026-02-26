@@ -10,3 +10,5 @@ node_modules/
 *.log
 mlruns/
 backend/data/
+services/cv-service/venv/
+services/cv-service/models/*.pth

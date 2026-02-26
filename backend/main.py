@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import patients
+from routers import patients, clinical
 
 app = FastAPI(
     title="Medical AI Platform",
@@ -8,6 +8,7 @@ app = FastAPI(
 )
 
 app.include_router(patients.router, prefix="/api/v1")
+app.include_router(clinical.router, prefix="/api/v1")
 
 @app.get("/health")
 def health_check():

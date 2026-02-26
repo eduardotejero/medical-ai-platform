@@ -30,6 +30,8 @@ df = load_data()
 
 st.title("🏥 Medical AI Platform — Dermatology Dashboard")
 st.markdown("---")
+st.warning("⚠️ DISCLAIMER: This platform is a technical portfolio demonstration only. It is NOT a certified medical device and must NOT be used for clinical diagnosis or medical decision-making.")
+
 
 # KPIs
 col1, col2, col3, col4 = st.columns(4)

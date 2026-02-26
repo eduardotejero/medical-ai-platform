@@ -1,4 +1,5 @@
 # CV Service — Computer Vision Pipeline
+> ⚠️ **DISCLAIMER:** This platform is a technical portfolio demonstration only. It is NOT a certified medical device and must NOT be used for clinical diagnosis or medical decision-making. Results are for demonstration purposes only.
 
 Dermatology image analysis service using deep learning for lesion classification and detection.
 

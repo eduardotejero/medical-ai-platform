@@ -1,4 +1,5 @@
 # Medical AI Platform
+> ⚠️ **DISCLAIMER:** This platform is a technical portfolio demonstration only. It is NOT a certified medical device and must NOT be used for clinical diagnosis or medical decision-making. Results are for demonstration purposes only.
 
 Clinical AI Platform integrating Machine Learning, Computer Vision, HL7/FHIR, and Hospital System Integration.
 

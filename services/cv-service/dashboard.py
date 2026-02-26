@@ -18,6 +18,7 @@ st.set_page_config(
 
 st.title("🔬 Medical AI Platform — Computer Vision Dashboard")
 st.markdown("---")
+st.warning("⚠️ DISCLAIMER: This platform is a technical portfolio demonstration only. It is NOT a certified medical device and must NOT be used for clinical diagnosis or medical decision-making.")
 
 # Sidebar
 st.sidebar.title("Navigation")

@@ -14,6 +14,11 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/02_init.sql
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -23,7 +28,31 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  streamlit:
+    build: ./backend
+    container_name: medicalai_streamlit
+    command: streamlit run dashboard.py --server.port=8501 --server.address=0.0.0.0
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    ports:
+      - "8501:8501"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  mlflow:
+    build: ./backend
+    container_name: medicalai_mlflow
+    command: mlflow ui --backend-store-uri sqlite:///mlflow.db --host 0.0.0.0 --port 5000
+    ports:
+      - "5000:5000"
     volumes:
       - ./backend:/app
 

@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from classifier import build_model, predict, LABELS
 from detector import load_model as load_yolo, detect
 from preprocessor import preprocess, get_stats
+from aws_storage import upload_image, upload_result
 import torch
 import os
 
@@ -13,7 +14,6 @@ app = FastAPI(
 
 MODEL_PATH = "models/resnet18_dermatology.pth"
 
-# Load models on startup
 cnn_model = build_model()
 if os.path.exists(MODEL_PATH):
     cnn_model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
@@ -32,32 +32,45 @@ async def predict_image(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     file_bytes = await file.read()
-    result = predict(cnn_model, file_bytes)
-    return result
+    return predict(cnn_model, file_bytes)
 
 @app.post("/detect")
 async def detect_image(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     file_bytes = await file.read()
-    result = detect(yolo_model, file_bytes)
-    return result
+    return detect(yolo_model, file_bytes)
 
 @app.post("/analyze")
 async def analyze_image(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     file_bytes = await file.read()
+
     img = preprocess(file_bytes)
     stats = get_stats(img)
     classification = predict(cnn_model, file_bytes)
     detections = detect(yolo_model, file_bytes)
-    return {
+
+    result = {
         "classification": classification,
         "detections": detections,
         "image_stats": stats
     }
 
+    # Store image and result in S3
+    s3_image_key = upload_image(file_bytes, file.filename)
+    s3_result_key = upload_result(result, file.filename)
+    result["s3_image"] = s3_image_key
+    result["s3_result"] = s3_result_key
+
+    return result
+
 @app.get("/labels")
 def get_labels():
     return {"labels": LABELS}
+
+@app.get("/images")
+def list_images():
+    from aws_storage import list_images
+    return {"images": list_images()}

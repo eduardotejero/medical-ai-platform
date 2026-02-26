@@ -44,8 +44,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
 
   mlflow:
     build: ./backend
@@ -70,11 +68,24 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       AWS_DEFAULT_REGION: eu-west-1
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./services/cv-service:/app
+
+  cv-dashboard:
+    build: ./services/cv-service
+    container_name: medicalai_cv_dashboard
+    command: streamlit run dashboard.py --server.port=8502 --server.address=0.0.0.0
+    ports:
+      - "8502:8502"
+    depends_on:
+      - cv-service
+    environment:
+      API_URL: http://cv-service:8001
 
 volumes:
   postgres_data:

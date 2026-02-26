@@ -1,0 +1,14 @@
+from fastapi import FastAPI
+from routers import patients
+
+app = FastAPI(
+    title="Medical AI Platform",
+    description="Clinical AI Platform — ML, Computer Vision, HL7/FHIR",
+    version="0.1.0"
+)
+
+app.include_router(patients.router, prefix="/api/v1")
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "Medical AI Platform"}

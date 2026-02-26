@@ -62,5 +62,19 @@ services:
     ports:
       - "6379:6379"
 
+  cv-service:
+    build: ./services/cv-service
+    container_name: medicalai_cv
+    ports:
+      - "8001:8001"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AWS_DEFAULT_REGION: eu-west-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/cv-service:/app
+
 volumes:
   postgres_data:

@@ -4,6 +4,7 @@ from database import get_db, HL7Message, Base, engine
 from parser import parse_message, get_sample_messages, SAMPLE_MESSAGES
 from fhir_converter import hl7_to_fhir_bundle
 import schemas
+from aws_lambda import invoke_lambda, create_lambda_function
 
 Base.metadata.create_all(bind=engine)
 
@@ -64,3 +65,13 @@ def simulate_messages(db: Session = Depends(get_db)):
 @app.get("/samples")
 def get_sample_parsed():
     return get_sample_messages()
+
+@app.post("/lambda/process")
+def process_with_lambda(payload: schemas.HL7MessageCreate):
+    result = invoke_lambda(payload.raw_message)
+    return result
+
+@app.post("/lambda/create")
+def create_lambda():
+    result = create_lambda_function()
+    return result

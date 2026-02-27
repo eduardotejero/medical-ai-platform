@@ -28,6 +28,10 @@ End-to-end medical data platform built to demonstrate production-grade Python de
 | CV Service Docs | http://localhost:8001/docs | CV API docs |
 | CV Dashboard | http://localhost:8502 | Computer Vision dashboard |
 | PostgreSQL | localhost:5432 | Database |
+| HL7 Service | http://localhost:8002 | HL7/FHIR integration API |
+| HL7 Service Docs | http://localhost:8002/docs | HL7 API docs |
+| HL7 Dashboard | http://localhost:8503 | HL7/FHIR dashboard |
+| MIRTH Connect | https://localhost:8443 | HL7 integration engine |
 
 ## Dataset
 

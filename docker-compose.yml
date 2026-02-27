@@ -102,5 +102,30 @@ services:
       postgres:
         condition: service_healthy
 
+  hl7-service:
+    build: ./services/hl7-service
+    container_name: medicalai_hl7
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AWS_DEFAULT_REGION: eu-west-1
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  hl7-dashboard:
+    build: ./services/hl7-service
+    container_name: medicalai_hl7_dashboard
+    command: streamlit run dashboard.py --server.port=8503 --server.address=0.0.0.0
+    ports:
+      - "8503:8503"
+    depends_on:
+      - hl7-service
+    environment:
+      API_URL: http://hl7-service:8002
+      
 volumes:
   postgres_data:

@@ -8,7 +8,7 @@ import os
 
 app = FastAPI(
     title="CV Service",
-    description="Computer Vision pipeline for dermatology image analysis",
+    description="Computer Vision pipeline for dermatology image analysis. ⚠️ DISCLAIMER: This is a technical portfolio demonstration only. NOT a certified medical device. Not for clinical use."",
     version="0.1.0"
 )
 

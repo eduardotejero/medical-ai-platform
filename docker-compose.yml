@@ -87,5 +87,20 @@ services:
     environment:
       API_URL: http://cv-service:8001
 
+  mirth:
+    image: nextgenhealthcare/connect:latest
+    container_name: medicalai_mirth
+    environment:
+      - DATABASE=postgres
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/medicalai
+      - DATABASE_USERNAME=${POSTGRES_USER}
+      - DATABASE_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:

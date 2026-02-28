@@ -126,6 +126,16 @@ services:
       - hl7-service
     environment:
       API_URL: http://hl7-service:8002
-      
+
+  frontend:
+    build: ./frontend
+    container_name: medicalai_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - cv-service
+      - hl7-service
+          
 volumes:
   postgres_data:

@@ -1,16 +1,43 @@
-# React + Vite
+# Frontend — React Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Single-page application integrating all Medical AI Platform services into a unified clinical dashboard.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework:** React 18 + Vite
+- **Styling:** Tailwind CSS
+- **Charts:** Recharts
+- **HTTP:** Axios
+- **Routing:** React Router v6
+- **Server:** nginx (production)
 
-## React Compiler
+## Pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Page | Route | Description |
+|---|---|---|
+| Overview | / | System status, KPIs, service health |
+| Patients | /patients | Patient registry with search and clinical detail |
+| ML Models | /ml | Model performance, diagnosis distribution, prediction simulator |
+| Computer Vision | /cv | Image upload, ResNet18 classification, YOLO detection |
+| HL7 / FHIR | /hl7 | Message feed, HL7 parser, FHIR R4 converter |
 
-## Expanding the ESLint configuration
+## Services Connected
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Service | URL |
+|---|---|
+| Backend API | http://localhost:8000 |
+| CV Service | http://localhost:8001 |
+| HL7 Service | http://localhost:8002 |
+
+## Quick Start
+```bash
+# Development
+npm install
+npm run dev
+
+# Production (Docker)
+docker-compose up --build frontend
+```
+
+- Development: http://localhost:5173
+- Production: http://localhost:3000

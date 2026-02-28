@@ -32,6 +32,8 @@ End-to-end medical data platform built to demonstrate production-grade Python de
 | HL7 Service Docs | http://localhost:8002/docs | HL7 API docs |
 | HL7 Dashboard | http://localhost:8503 | HL7/FHIR dashboard |
 | MIRTH Connect | https://localhost:8443 | HL7 integration engine |
+| React Frontend (dev) | http://localhost:5173 | React dashboard |
+| React Frontend (prod) | http://localhost:3000 | React dashboard (nginx) |
 
 ## Dataset
 

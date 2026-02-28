@@ -1,12 +1,26 @@
-function App() {
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Sidebar from "./components/Sidebar"
+import Dashboard from "./pages/Dashboard"
+import Patients from "./pages/Patients"
+import MachineLearning from "./pages/MachineLearning"
+import ComputerVision from "./pages/ComputerVision"
+import HL7 from "./pages/HL7"
+
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow p-8">
-        <h1 className="text-3xl font-bold text-blue-600">Medical AI Platform</h1>
-        <p className="text-gray-500 mt-2">Frontend running ✅</p>
+    <BrowserRouter>
+      <div style={{ display: "flex", background: "#060a14", minHeight: "100vh" }}>
+        <Sidebar />
+        <main style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/patients" element={<Patients />} />
+            <Route path="/ml" element={<MachineLearning />} />
+            <Route path="/cv" element={<ComputerVision />} />
+            <Route path="/hl7" element={<HL7 />} />
+          </Routes>
+        </main>
       </div>
-    </div>
+    </BrowserRouter>
   )
 }
-
-export default App

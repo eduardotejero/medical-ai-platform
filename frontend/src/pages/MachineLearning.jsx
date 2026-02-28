@@ -120,6 +120,62 @@ function PredictionSimulator() {
   )
 }
 
+function MLflowPanel() {
+  const experiments = [
+    {
+      name: "dermatology-classification",
+      runs: [
+        { name: "logistic-regression", accuracy: 0.8462, cv_mean: 0.8461, status: "FINISHED" },
+        { name: "random-forest", accuracy: 0.8462, cv_mean: 0.8461, status: "FINISHED" },
+        { name: "gradient-boosting", accuracy: 0.8462, cv_mean: 0.8461, status: "FINISHED" },
+      ]
+    },
+    {
+      name: "cnn-dermatology",
+      runs: [
+        { name: "resnet18-transfer-learning", accuracy: 0.5679, cv_mean: null, status: "FINISHED" },
+      ]
+    }
+  ]
+
+  return (
+    <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "24px", marginTop: "24px", fontFamily: "monospace" }}>
+      <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>
+        MLFLOW EXPERIMENT TRACKING
+      </div>
+      {experiments.map((exp, i) => (
+        <div key={i} style={{ marginBottom: "20px" }}>
+          <div style={{ color: "#4a9eff", fontSize: "11px", marginBottom: "8px", letterSpacing: "1px" }}>
+            ◎ {exp.name}
+          </div>
+          {exp.runs.map((run, j) => (
+            <div key={j} style={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr 1fr 1fr",
+              gap: "8px", padding: "8px 12px",
+              background: "#060a14", border: "1px solid #1a2535",
+              marginBottom: "4px"
+            }}>
+              <div style={{ color: "#e8f0fe", fontSize: "10px" }}>{run.name}</div>
+              <div>
+                <div style={{ color: "#2a4a6a", fontSize: "8px" }}>ACCURACY</div>
+                <div style={{ color: "#00d4aa", fontSize: "11px" }}>{(run.accuracy * 100).toFixed(2)}%</div>
+              </div>
+              <div>
+                <div style={{ color: "#2a4a6a", fontSize: "8px" }}>CV MEAN</div>
+                <div style={{ color: "#4a9eff", fontSize: "11px" }}>{run.cv_mean ? (run.cv_mean * 100).toFixed(2) + "%" : "—"}</div>
+              </div>
+              <div style={{ color: "#00d4aa", fontSize: "9px", letterSpacing: "1px", alignSelf: "center" }}>
+                ● {run.status}
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function MachineLearning() {
   const [stats, setStats] = useState(null)
   const [models, setModels] = useState([])
@@ -193,6 +249,7 @@ export default function MachineLearning() {
 
         {/* Prediction simulator */}
         <PredictionSimulator />
+        <MLflowPanel />
 
       </div>
     </div>

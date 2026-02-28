@@ -17,39 +17,39 @@ export default function Sidebar() {
     <aside style={{
       width: "220px",
       minHeight: "100vh",
-      background: "#0a0e1a",
-      borderRight: "1px solid #1a2535",
+      background: "#F0F4F8",
+      borderRight: "1px solid #CBD5E0",
       display: "flex",
       flexDirection: "column",
       padding: "0",
-      fontFamily: "'Courier New', monospace",
+      fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
     }}>
       {/* Logo */}
       <div style={{
         padding: "24px 20px",
-        borderBottom: "1px solid #1a2535",
+        borderBottom: "1px solid #CBD5E0",
       }}>
-        <div style={{ color: "#00d4aa", fontSize: "10px", letterSpacing: "3px", marginBottom: "4px" }}>
+        <div style={{ color: "#0066CC", fontSize: "13px", letterSpacing: "3px", marginBottom: "4px" }}>
           MEDICAL AI
         </div>
-        <div style={{ color: "#fff", fontSize: "16px", fontWeight: "700", letterSpacing: "1px" }}>
+        <div style={{ color: "#1A202C", fontSize: "18px", fontWeight: "700", letterSpacing: "1px" }}>
           PLATFORM
         </div>
-        <div style={{ color: "#2a4a6a", fontSize: "9px", letterSpacing: "2px", marginTop: "4px" }}>
+        <div style={{ color: "#718096", fontSize: "12px", letterSpacing: "2px", marginTop: "4px" }}>
           v2.0 — DEMO ONLY
         </div>
       </div>
 
       {/* Status */}
-      <div style={{ padding: "12px 20px", borderBottom: "1px solid #1a2535" }}>
+      <div style={{ padding: "12px 20px", borderBottom: "1px solid #CBD5E0" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div style={{
             width: "6px", height: "6px", borderRadius: "50%",
-            background: "#00d4aa",
-            boxShadow: "0 0 6px #00d4aa",
+            background: "#0066CC",
+            boxShadow: "0 0 6px #0066CC",
             animation: "pulse 2s infinite"
           }} />
-          <span style={{ color: "#00d4aa", fontSize: "9px", letterSpacing: "2px" }}>SYSTEMS ONLINE</span>
+          <span style={{ color: "#0066CC", fontSize: "12px", letterSpacing: "2px" }}>SYSTEMS ONLINE</span>
         </div>
       </div>
 
@@ -64,17 +64,17 @@ export default function Sidebar() {
               alignItems: "center",
               gap: "12px",
               padding: "12px 20px",
-              background: active ? "#0f1f35" : "transparent",
+              background: active ? "#E8EEF4" : "transparent",
               border: "none",
-              borderLeft: active ? "2px solid #00d4aa" : "2px solid transparent",
-              color: active ? "#00d4aa" : "#4a6a8a",
-              fontSize: "11px",
+              borderLeft: active ? "2px solid #0066CC" : "2px solid transparent",
+              color: active ? "#0066CC" : "#4A5568",
+              fontSize: "14px",
               letterSpacing: "2px",
               cursor: "pointer",
               textAlign: "left",
               transition: "all 0.2s",
             }}>
-              <span style={{ fontSize: "14px" }}>{item.icon}</span>
+              <span style={{ fontSize: "16px" }}>{item.icon}</span>
               {item.label.toUpperCase()}
             </button>
           )
@@ -82,8 +82,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: "16px 20px", borderTop: "1px solid #1a2535" }}>
-        <div style={{ color: "#2a4a6a", fontSize: "8px", letterSpacing: "1px", lineHeight: "1.6" }}>
+      <div style={{ padding: "16px 20px", borderTop: "1px solid #CBD5E0" }}>
+        <div style={{ color: "#718096", fontSize: "11px", letterSpacing: "1px", lineHeight: "1.6" }}>
           ⚠ NOT FOR CLINICAL USE<br />
           PORTFOLIO DEMO ONLY
         </div>

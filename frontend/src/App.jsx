@@ -9,7 +9,7 @@ import HL7 from "./pages/HL7"
 export default function App() {
   return (
     <BrowserRouter>
-      <div style={{ display: "flex", background: "#060a14", minHeight: "100vh" }}>
+      <div style={{ display: "flex", background: "#FFFFFF", minHeight: "100vh" }}>
         <Sidebar />
         <main style={{ flex: 1 }}>
           <Routes>

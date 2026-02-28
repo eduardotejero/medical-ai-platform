@@ -4,13 +4,13 @@ import axios from "axios"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
 
 const BACKEND = "http://localhost:8000"
-const COLORS = ["#00d4aa", "#4a9eff", "#aa44ff", "#ffaa00", "#ff4444", "#44ffaa", "#ff44aa"]
+const COLORS = ["#0066CC", "#2196F3", "#7C3AED", "#F59E0B", "#EF4444", "#10B981", "#EC4899"]
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "10px 14px", fontFamily: "monospace", fontSize: "11px" }}>
-        <div style={{ color: "#4a6a8a", marginBottom: "4px" }}>{label}</div>
+      <div style={{ background: "#FFFFFF", border: "1px solid #CBD5E0", padding: "10px 14px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", fontSize: "14px" }}>
+        <div style={{ color: "#4A5568", marginBottom: "4px" }}>{label}</div>
         {payload.map((p, i) => (
           <div key={i} style={{ color: p.color }}>{p.name}: {typeof p.value === 'number' ? p.value.toFixed(3) : p.value}</div>
         ))}
@@ -46,26 +46,26 @@ function PredictionSimulator() {
     }, 800)
   }
 
-  const severityColor = (s) => s >= 4 ? "#ff4444" : s >= 3 ? "#ffaa00" : "#00d4aa"
+  const severityColor = (s) => s >= 4 ? "#EF4444" : s >= 3 ? "#F59E0B" : "#0066CC"
 
   return (
-    <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "24px", fontFamily: "monospace" }}>
-      <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "20px" }}>ML PREDICTION SIMULATOR</div>
+    <div style={{ background: "#F0F4F8", border: "1px solid #CBD5E0", padding: "24px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+      <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "20px" }}>ML PREDICTION SIMULATOR</div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "16px", marginBottom: "20px", alignItems: "end" }}>
         <div>
-          <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "2px", marginBottom: "8px" }}>AGE</div>
+          <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "2px", marginBottom: "8px" }}>AGE</div>
           <input type="number" value={age} onChange={e => setAge(e.target.value)} style={{
-            width: "100%", background: "#060a14", border: "1px solid #1a2535",
-            color: "#e8f0fe", padding: "8px 12px", fontFamily: "monospace", fontSize: "13px",
+            width: "100%", background: "#FFFFFF", border: "1px solid #CBD5E0",
+            color: "#1A202C", padding: "8px 12px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", fontSize: "15px",
             outline: "none", boxSizing: "border-box"
           }} />
         </div>
         <div>
-          <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "2px", marginBottom: "8px" }}>GENDER</div>
+          <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "2px", marginBottom: "8px" }}>GENDER</div>
           <select value={gender} onChange={e => setGender(e.target.value)} style={{
-            width: "100%", background: "#060a14", border: "1px solid #1a2535",
-            color: "#e8f0fe", padding: "8px 12px", fontFamily: "monospace", fontSize: "13px",
+            width: "100%", background: "#FFFFFF", border: "1px solid #CBD5E0",
+            color: "#1A202C", padding: "8px 12px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", fontSize: "15px",
             outline: "none"
           }}>
             <option value="M">MALE</option>
@@ -73,9 +73,9 @@ function PredictionSimulator() {
           </select>
         </div>
         <button onClick={simulate} disabled={loading} style={{
-          background: loading ? "#1a2535" : "#00d4aa",
-          border: "none", color: loading ? "#4a6a8a" : "#060a14",
-          padding: "8px 24px", fontFamily: "monospace", fontSize: "11px",
+          background: loading ? "#CBD5E0" : "#0066CC",
+          border: "none", color: loading ? "#4A5568" : "#FFFFFF",
+          padding: "8px 24px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", fontSize: "14px",
           letterSpacing: "2px", cursor: loading ? "not-allowed" : "pointer",
           fontWeight: "700"
         }}>
@@ -87,26 +87,26 @@ function PredictionSimulator() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div>
             <div style={{ marginBottom: "16px" }}>
-              <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "2px", marginBottom: "4px" }}>PREDICTION</div>
-              <div style={{ color: "#e8f0fe", fontSize: "18px", fontWeight: "700" }}>{result.prediction}</div>
+              <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "2px", marginBottom: "4px" }}>PREDICTION</div>
+              <div style={{ color: "#1A202C", fontSize: "20px", fontWeight: "700" }}>{result.prediction}</div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <div style={{ background: "#060a14", border: "1px solid #1a2535", padding: "12px" }}>
-                <div style={{ color: "#4a6a8a", fontSize: "8px", letterSpacing: "2px" }}>CONFIDENCE</div>
-                <div style={{ color: "#00d4aa", fontSize: "20px", fontWeight: "700" }}>{(result.confidence * 100).toFixed(1)}%</div>
+              <div style={{ background: "#FFFFFF", border: "1px solid #CBD5E0", padding: "12px" }}>
+                <div style={{ color: "#4A5568", fontSize: "11px", letterSpacing: "2px" }}>CONFIDENCE</div>
+                <div style={{ color: "#0066CC", fontSize: "22px", fontWeight: "700" }}>{(result.confidence * 100).toFixed(1)}%</div>
               </div>
-              <div style={{ background: "#060a14", border: "1px solid #1a2535", padding: "12px" }}>
-                <div style={{ color: "#4a6a8a", fontSize: "8px", letterSpacing: "2px" }}>SEVERITY</div>
-                <div style={{ color: severityColor(result.severity), fontSize: "20px", fontWeight: "700" }}>{result.severity}/5</div>
+              <div style={{ background: "#FFFFFF", border: "1px solid #CBD5E0", padding: "12px" }}>
+                <div style={{ color: "#4A5568", fontSize: "11px", letterSpacing: "2px" }}>SEVERITY</div>
+                <div style={{ color: severityColor(result.severity), fontSize: "22px", fontWeight: "700" }}>{result.severity}/5</div>
               </div>
             </div>
           </div>
           <div>
-            <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "2px", marginBottom: "8px" }}>PROBABILITIES</div>
+            <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "2px", marginBottom: "8px" }}>PROBABILITIES</div>
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={result.probabilities} layout="vertical">
-                <XAxis type="number" domain={[0, 1]} tick={{ fill: "#4a6a8a", fontSize: 9, fontFamily: "monospace" }} axisLine={{ stroke: "#1a2535" }} />
-                <YAxis dataKey="diagnosis" type="category" tick={{ fill: "#4a6a8a", fontSize: 8, fontFamily: "monospace" }} axisLine={{ stroke: "#1a2535" }} width={110} />
+                <XAxis type="number" domain={[0, 1]} tick={{ fill: "#4A5568", fontSize: 12, fontFamily: "system-ui" }} axisLine={{ stroke: "#CBD5E0" }} />
+                <YAxis dataKey="diagnosis" type="category" tick={{ fill: "#4A5568", fontSize: 11, fontFamily: "system-ui" }} axisLine={{ stroke: "#CBD5E0" }} width={110} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="probability" name="Probability">
                   {result.probabilities.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -139,13 +139,13 @@ function MLflowPanel() {
   ]
 
   return (
-    <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "24px", marginTop: "24px", fontFamily: "monospace" }}>
-      <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>
+    <div style={{ background: "#F0F4F8", border: "1px solid #CBD5E0", padding: "24px", marginTop: "24px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif" }}>
+      <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "16px" }}>
         MLFLOW EXPERIMENT TRACKING
       </div>
       {experiments.map((exp, i) => (
         <div key={i} style={{ marginBottom: "20px" }}>
-          <div style={{ color: "#4a9eff", fontSize: "11px", marginBottom: "8px", letterSpacing: "1px" }}>
+          <div style={{ color: "#2196F3", fontSize: "14px", marginBottom: "8px", letterSpacing: "1px" }}>
             ◎ {exp.name}
           </div>
           {exp.runs.map((run, j) => (
@@ -153,19 +153,19 @@ function MLflowPanel() {
               display: "grid",
               gridTemplateColumns: "2fr 1fr 1fr 1fr",
               gap: "8px", padding: "8px 12px",
-              background: "#060a14", border: "1px solid #1a2535",
+              background: "#FFFFFF", border: "1px solid #CBD5E0",
               marginBottom: "4px"
             }}>
-              <div style={{ color: "#e8f0fe", fontSize: "10px" }}>{run.name}</div>
+              <div style={{ color: "#1A202C", fontSize: "13px" }}>{run.name}</div>
               <div>
-                <div style={{ color: "#2a4a6a", fontSize: "8px" }}>ACCURACY</div>
-                <div style={{ color: "#00d4aa", fontSize: "11px" }}>{(run.accuracy * 100).toFixed(2)}%</div>
+                <div style={{ color: "#718096", fontSize: "11px" }}>ACCURACY</div>
+                <div style={{ color: "#0066CC", fontSize: "14px" }}>{(run.accuracy * 100).toFixed(2)}%</div>
               </div>
               <div>
-                <div style={{ color: "#2a4a6a", fontSize: "8px" }}>CV MEAN</div>
-                <div style={{ color: "#4a9eff", fontSize: "11px" }}>{run.cv_mean ? (run.cv_mean * 100).toFixed(2) + "%" : "—"}</div>
+                <div style={{ color: "#718096", fontSize: "11px" }}>CV MEAN</div>
+                <div style={{ color: "#2196F3", fontSize: "14px" }}>{run.cv_mean ? (run.cv_mean * 100).toFixed(2) + "%" : "—"}</div>
               </div>
-              <div style={{ color: "#00d4aa", fontSize: "9px", letterSpacing: "1px", alignSelf: "center" }}>
+              <div style={{ color: "#0066CC", fontSize: "12px", letterSpacing: "1px", alignSelf: "center" }}>
                 ● {run.status}
               </div>
             </div>
@@ -196,7 +196,7 @@ export default function MachineLearning() {
   }))
 
   return (
-    <div style={{ flex: 1, background: "#060a14", minHeight: "100vh" }}>
+    <div style={{ flex: 1, background: "#FFFFFF", minHeight: "100vh" }}>
       <Header title="ML Models & Predictions" subtitle="SCIKIT-LEARN · MLFLOW" />
       <div style={{ padding: "32px" }}>
 
@@ -204,14 +204,14 @@ export default function MachineLearning() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" }}>
           {modelData.map((m, i) => (
             <div key={i} style={{
-              background: "#0a0e1a", border: "1px solid #1a2535",
-              borderTop: `2px solid ${COLORS[i]}`, padding: "20px", fontFamily: "monospace"
+              background: "#F0F4F8", border: "1px solid #CBD5E0",
+              borderTop: `2px solid ${COLORS[i]}`, padding: "20px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif"
             }}>
-              <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "2px", marginBottom: "8px" }}>{m.name.toUpperCase()}</div>
-              <div style={{ color: "#e8f0fe", fontSize: "28px", fontWeight: "700" }}>
-                {(m.accuracy * 100).toFixed(2)}<span style={{ fontSize: "12px", color: "#4a6a8a" }}>%</span>
+              <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "2px", marginBottom: "8px" }}>{m.name.toUpperCase()}</div>
+              <div style={{ color: "#1A202C", fontSize: "30px", fontWeight: "700" }}>
+                {(m.accuracy * 100).toFixed(2)}<span style={{ fontSize: "14px", color: "#4A5568" }}>%</span>
               </div>
-              <div style={{ color: "#4a6a8a", fontSize: "10px", marginTop: "4px" }}>CV MEAN: {(m.cv_mean * 100).toFixed(2)}%</div>
+              <div style={{ color: "#4A5568", fontSize: "13px", marginTop: "4px" }}>CV MEAN: {(m.cv_mean * 100).toFixed(2)}%</div>
             </div>
           ))}
         </div>
@@ -219,12 +219,12 @@ export default function MachineLearning() {
         {/* Charts */}
         {diagnosisData.length > 0 && (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
-            <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "20px" }}>
-              <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>DIAGNOSIS DISTRIBUTION</div>
+            <div style={{ background: "#F0F4F8", border: "1px solid #CBD5E0", padding: "20px" }}>
+              <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "16px" }}>DIAGNOSIS DISTRIBUTION</div>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={diagnosisData} layout="vertical">
-                  <XAxis type="number" tick={{ fill: "#4a6a8a", fontSize: 9, fontFamily: "monospace" }} axisLine={{ stroke: "#1a2535" }} />
-                  <YAxis dataKey="name" type="category" tick={{ fill: "#4a6a8a", fontSize: 9, fontFamily: "monospace" }} axisLine={{ stroke: "#1a2535" }} width={100} />
+                  <XAxis type="number" tick={{ fill: "#4A5568", fontSize: 12, fontFamily: "system-ui" }} axisLine={{ stroke: "#CBD5E0" }} />
+                  <YAxis dataKey="name" type="category" tick={{ fill: "#4A5568", fontSize: 12, fontFamily: "system-ui" }} axisLine={{ stroke: "#CBD5E0" }} width={100} />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="count" name="Count">
                     {diagnosisData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -232,8 +232,8 @@ export default function MachineLearning() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div style={{ background: "#0a0e1a", border: "1px solid #1a2535", padding: "20px" }}>
-              <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>DISTRIBUTION PIE</div>
+            <div style={{ background: "#F0F4F8", border: "1px solid #CBD5E0", padding: "20px" }}>
+              <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "16px" }}>DISTRIBUTION PIE</div>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie data={diagnosisData} dataKey="count" nameKey="name" cx="50%" cy="50%" outerRadius={80}

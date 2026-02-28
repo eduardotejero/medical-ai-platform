@@ -6,23 +6,23 @@ const BACKEND = "http://localhost:8000"
 const CV = "http://localhost:8001"
 const HL7 = "http://localhost:8002"
 
-function StatCard({ label, value, unit, color = "#00d4aa", status }) {
+function StatCard({ label, value, unit, color = "#0066CC", status }) {
   return (
     <div style={{
-      background: "#0a0e1a",
-      border: "1px solid #1a2535",
+      background: "#F0F4F8",
+      border: "1px solid #CBD5E0",
       borderTop: `2px solid ${color}`,
       padding: "20px",
-      fontFamily: "monospace",
+      fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
     }}>
-      <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "12px" }}>{label}</div>
-      <div style={{ color: "#e8f0fe", fontSize: "28px", fontWeight: "700" }}>
-        {value} <span style={{ fontSize: "12px", color: "#4a6a8a" }}>{unit}</span>
+      <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "12px" }}>{label}</div>
+      <div style={{ color: "#1A202C", fontSize: "30px", fontWeight: "700" }}>
+        {value} <span style={{ fontSize: "14px", color: "#4A5568" }}>{unit}</span>
       </div>
       {status && (
         <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
           <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: color }} />
-          <span style={{ color, fontSize: "9px", letterSpacing: "2px" }}>{status}</span>
+          <span style={{ color, fontSize: "12px", letterSpacing: "2px" }}>{status}</span>
         </div>
       )}
     </div>
@@ -38,7 +38,7 @@ function ServiceStatus({ name, url, port }) {
       .catch(() => setStatus("offline"))
   }, [url])
 
-  const color = status === "online" ? "#00d4aa" : status === "offline" ? "#ff4444" : "#ffaa00"
+  const color = status === "online" ? "#0066CC" : status === "offline" ? "#EF4444" : "#F59E0B"
 
   return (
     <div style={{
@@ -46,12 +46,12 @@ function ServiceStatus({ name, url, port }) {
       justifyContent: "space-between",
       alignItems: "center",
       padding: "10px 0",
-      borderBottom: "1px solid #1a2535",
-      fontFamily: "monospace",
+      borderBottom: "1px solid #CBD5E0",
+      fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
     }}>
       <div>
-        <div style={{ color: "#e8f0fe", fontSize: "12px" }}>{name}</div>
-        <div style={{ color: "#2a4a6a", fontSize: "9px" }}>:{port}</div>
+        <div style={{ color: "#1A202C", fontSize: "14px" }}>{name}</div>
+        <div style={{ color: "#718096", fontSize: "12px" }}>:{port}</div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
         <div style={{
@@ -59,7 +59,7 @@ function ServiceStatus({ name, url, port }) {
           background: color,
           boxShadow: status === "online" ? `0 0 6px ${color}` : "none"
         }} />
-        <span style={{ color, fontSize: "9px", letterSpacing: "2px" }}>{status.toUpperCase()}</span>
+        <span style={{ color, fontSize: "12px", letterSpacing: "2px" }}>{status.toUpperCase()}</span>
       </div>
     </div>
   )
@@ -79,26 +79,26 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div style={{ flex: 1, background: "#060a14", minHeight: "100vh" }}>
+    <div style={{ flex: 1, background: "#FFFFFF", minHeight: "100vh" }}>
       <Header title="System Overview" subtitle="MEDICAL AI PLATFORM" />
       <div style={{ padding: "32px" }}>
 
         {/* KPIs */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "32px" }}>
-          <StatCard label="PATIENTS LOADED" value={patients} unit="records" color="#00d4aa" status="HAM10000 DATASET" />
-          <StatCard label="HL7 MESSAGES" value={messages} unit="msgs" color="#4a9eff" status="PROCESSED" />
-          <StatCard label="ML MODELS" value={3} unit="models" color="#aa44ff" status="TRAINED" />
-          <StatCard label="CV PIPELINE" value="ACTIVE" unit="" color="#ffaa00" status="RESNET18 + YOLO" />
+          <StatCard label="PATIENTS LOADED" value={patients} unit="records" color="#0066CC" status="HAM10000 DATASET" />
+          <StatCard label="HL7 MESSAGES" value={messages} unit="msgs" color="#2196F3" status="PROCESSED" />
+          <StatCard label="ML MODELS" value={3} unit="models" color="#7C3AED" status="TRAINED" />
+          <StatCard label="CV PIPELINE" value="ACTIVE" unit="" color="#F59E0B" status="RESNET18 + YOLO" />
         </div>
 
         {/* Services */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div style={{
-            background: "#0a0e1a",
-            border: "1px solid #1a2535",
+            background: "#F0F4F8",
+            border: "1px solid #CBD5E0",
             padding: "20px",
           }}>
-            <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>
+            <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "16px" }}>
               SERVICE STATUS
             </div>
             <ServiceStatus name="Backend API" url={BACKEND} port="8000" />
@@ -107,11 +107,11 @@ export default function Dashboard() {
           </div>
 
           <div style={{
-            background: "#0a0e1a",
-            border: "1px solid #1a2535",
+            background: "#F0F4F8",
+            border: "1px solid #CBD5E0",
             padding: "20px",
           }}>
-            <div style={{ color: "#4a6a8a", fontSize: "9px", letterSpacing: "3px", marginBottom: "16px" }}>
+            <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "16px" }}>
               TECH STACK
             </div>
             {[
@@ -123,15 +123,15 @@ export default function Dashboard() {
             ].map((item, i) => (
               <div key={i} style={{
                 padding: "8px 0",
-                borderBottom: "1px solid #1a2535",
-                color: "#4a6a8a",
-                fontSize: "11px",
-                fontFamily: "monospace",
+                borderBottom: "1px solid #CBD5E0",
+                color: "#4A5568",
+                fontSize: "14px",
+                fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px"
               }}>
-                <span style={{ color: "#00d4aa" }}>›</span> {item}
+                <span style={{ color: "#0066CC" }}>›</span> {item}
               </div>
             ))}
           </div>

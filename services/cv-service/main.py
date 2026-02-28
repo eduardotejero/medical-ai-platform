@@ -3,12 +3,13 @@ from classifier import build_model, predict, LABELS
 from detector import load_model as load_yolo, detect
 from preprocessor import preprocess, get_stats
 from aws_storage import upload_image, upload_result
+from fastapi.middleware.cors import CORSMiddleware
 import torch
 import os
 
 app = FastAPI(
     title="CV Service",
-    description="Computer Vision pipeline for dermatology image analysis. ⚠️ DISCLAIMER: This is a technical portfolio demonstration only. NOT a certified medical device. Not for clinical use."",
+    description="Computer Vision pipeline for dermatology image analysis. ⚠️ DISCLAIMER: This is a technical portfolio demonstration only. NOT a certified medical device. Not for clinical use.",
     version="0.1.0"
 )
 
@@ -74,3 +75,11 @@ def get_labels():
 def list_images():
     from aws_storage import list_images
     return {"images": list_images()}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

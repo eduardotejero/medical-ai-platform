@@ -5,6 +5,7 @@ from parser import parse_message, get_sample_messages, SAMPLE_MESSAGES
 from fhir_converter import hl7_to_fhir_bundle
 import schemas
 from aws_lambda import invoke_lambda, create_lambda_function
+from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -75,3 +76,11 @@ def process_with_lambda(payload: schemas.HL7MessageCreate):
 def create_lambda():
     result = create_lambda_function()
     return result
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

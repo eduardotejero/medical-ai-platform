@@ -43,6 +43,8 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     db_patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
     if not db_patient:
         raise HTTPException(status_code=404, detail="Patient not found")
+    db.query(models.Diagnosis).filter(models.Diagnosis.patient_id == patient_id).delete()
+    db.query(models.ClinicalData).filter(models.ClinicalData.patient_id == patient_id).delete()
     db.delete(db_patient)
     db.commit()
     return {"message": f"Patient {patient_id} deleted"}

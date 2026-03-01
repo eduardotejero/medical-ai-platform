@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS patients (
     patient_code VARCHAR(20) UNIQUE NOT NULL,
     age INTEGER,
     gender VARCHAR(10),
+    fitzpatrick_type INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -11,10 +12,9 @@ CREATE TABLE IF NOT EXISTS patients (
 CREATE TABLE IF NOT EXISTS clinical_data (
     id SERIAL PRIMARY KEY,
     patient_id INTEGER REFERENCES patients(id),
-    ige_total FLOAT,
-    eosinophils FLOAT,
-    skin_ph FLOAT,
-    tewl FLOAT,
+    lesion_diameter FLOAT,
+    uv_exposure FLOAT,
+    abcde_score FLOAT,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

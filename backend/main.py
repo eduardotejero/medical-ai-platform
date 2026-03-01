@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import patients, clinical, analytics, models
+from routers import patients, clinical, analytics, models, ml_train, orders
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -12,6 +12,8 @@ app.include_router(patients.router, prefix="/api/v1")
 app.include_router(clinical.router, prefix="/api/v1")
 app.include_router(analytics.router, prefix="/api/v1/analysis", tags=["analytics"])
 app.include_router(models.router, prefix="/api/v1/models", tags=["models"])
+app.include_router(ml_train.router, prefix="/api/v1/ml", tags=["ml"])
+app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
 
 @app.get("/health")
 def health_check():

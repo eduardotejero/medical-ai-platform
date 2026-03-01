@@ -2,11 +2,14 @@ import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 
 const NAV_ITEMS = [
-  { path: "/", label: "Overview", icon: "⬡" },
-  { path: "/patients", label: "Patients", icon: "◈" },
-  { path: "/ml", label: "ML Models", icon: "◎" },
-  { path: "/cv", label: "Computer Vision", icon: "◫" },
-  { path: "/hl7", label: "HL7 / FHIR", icon: "⬢" },
+  { path: "/",       label: "Overview",         icon: "⬡" },
+  { section: "HOSPITAL SIMULATION" },
+  { path: "/patients", label: "Patients",       icon: "◈" },
+  { path: "/orders",   label: "Test Orders",    icon: "◷" },
+  { section: "AI DEMOS" },
+  { path: "/ml",     label: "ML Models",        icon: "◎" },
+  { path: "/cv",     label: "Computer Vision",  icon: "◫" },
+  { path: "/hl7",    label: "HL7 / FHIR",       icon: "⬢" },
 ]
 
 export default function Sidebar() {
@@ -54,8 +57,22 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: "16px 0" }}>
-        {NAV_ITEMS.map(item => {
+      <nav style={{ flex: 1, padding: "8px 0" }}>
+        {NAV_ITEMS.map((item, idx) => {
+          if (item.section) {
+            return (
+              <div key={`section-${idx}`} style={{
+                padding: "12px 20px 4px",
+                color: "#A0AEC0",
+                fontSize: "10px",
+                letterSpacing: "2px",
+                borderTop: idx > 0 ? "1px solid #CBD5E0" : "none",
+                marginTop: idx > 0 ? "4px" : "0",
+              }}>
+                {item.section}
+              </div>
+            )
+          }
           const active = location.pathname === item.path
           return (
             <button key={item.path} onClick={() => navigate(item.path)} style={{
@@ -63,18 +80,18 @@ export default function Sidebar() {
               display: "flex",
               alignItems: "center",
               gap: "12px",
-              padding: "12px 20px",
+              padding: "10px 20px",
               background: active ? "#E8EEF4" : "transparent",
               border: "none",
               borderLeft: active ? "2px solid #0066CC" : "2px solid transparent",
               color: active ? "#0066CC" : "#4A5568",
-              fontSize: "14px",
+              fontSize: "13px",
               letterSpacing: "2px",
               cursor: "pointer",
               textAlign: "left",
               transition: "all 0.2s",
             }}>
-              <span style={{ fontSize: "16px" }}>{item.icon}</span>
+              <span style={{ fontSize: "15px" }}>{item.icon}</span>
               {item.label.toUpperCase()}
             </button>
           )

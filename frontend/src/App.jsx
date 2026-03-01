@@ -5,6 +5,7 @@ import Patients from "./pages/Patients"
 import MachineLearning from "./pages/MachineLearning"
 import ComputerVision from "./pages/ComputerVision"
 import HL7 from "./pages/HL7"
+import TestOrders from "./pages/TestOrders"
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/ml" element={<MachineLearning />} />
             <Route path="/cv" element={<ComputerVision />} />
             <Route path="/hl7" element={<HL7 />} />
+            <Route path="/orders" element={<TestOrders />} />
           </Routes>
         </main>
       </div>

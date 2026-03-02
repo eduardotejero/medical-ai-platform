@@ -27,6 +27,8 @@ function TrainPanel({ onTrained }) {
   const [status, setStatus] = useState(null)  // null | "idle" | "training" | "done" | "error"
   const [result, setResult] = useState(null)
   const [modelTrained, setModelTrained] = useState(false)
+  const [seeding, setSeeding] = useState(false)
+  const [seedResult, setSeedResult] = useState(null)
 
   useEffect(() => {
     axios.get(`${BACKEND}/api/v1/ml/status`)
@@ -34,18 +36,69 @@ function TrainPanel({ onTrained }) {
       .catch(() => {})
   }, [])
 
+  // On mount: if training is already running (navigated away and back), re-lock UI and poll
+  useEffect(() => {
+    let cancelled = false
+    let wasRunning = false
+
+    const poll = async () => {
+      if (cancelled) return
+      try {
+        const r = await axios.get(`${BACKEND}/api/v1/ml/training-status`)
+        if (cancelled) return
+        if (r.data.running) {
+          wasRunning = true
+          setStatus("training")
+          setTimeout(poll, 2000)
+        } else if (wasRunning) {
+          // Training just finished while we were polling — fetch results
+          if (r.data.error) {
+            setResult({ error: r.data.error })
+            setStatus("error")
+            return
+          }
+          const res = await axios.get(`${BACKEND}/api/v1/ml/results`)
+          if (!cancelled && res.data.trained) {
+            setResult(res.data)
+            setModelTrained(true)
+            setStatus("done")
+            if (onTrained) onTrained(res.data)
+          }
+        }
+      } catch (_) {}
+    }
+
+    poll()
+    return () => { cancelled = true }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const train = async () => {
     setStatus("training")
     setResult(null)
     try {
       const r = await axios.post(`${BACKEND}/api/v1/ml/train`)
-      setResult(r.data)
-      setModelTrained(true)
-      setStatus("done")
-      if (onTrained) onTrained(r.data)
+      if (r.data.error || r.data.started === false) {
+        setResult({ error: r.data.error || r.data.message })
+        setStatus("error")
+        return
+      }
+      // Training started in background — polling useEffect will detect completion
     } catch (e) {
+      setResult({ error: "Connection error. Check backend." })
       setStatus("error")
     }
+  }
+
+  const seed = async () => {
+    setSeeding(true)
+    setSeedResult(null)
+    try {
+      const r = await axios.post(`${BACKEND}/api/v1/ml/seed-diagnoses`)
+      setSeedResult(r.data)
+    } catch (e) {
+      setSeedResult({ error: "Seed failed" })
+    }
+    setSeeding(false)
   }
 
   const fiData = result?.feature_importance
@@ -61,24 +114,44 @@ function TrainPanel({ onTrained }) {
           <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "4px" }}>REAL MODEL TRAINING</div>
           <div style={{ color: "#1A202C", fontSize: "16px", fontWeight: "700" }}>Logistic Regression + Random Forest + Gradient Boosting · HAM10000</div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{
             fontSize: "12px", letterSpacing: "1px",
             color: modelTrained ? "#10B981" : "#F59E0B",
           }}>
             {modelTrained ? "● MODEL TRAINED" : "○ NOT TRAINED"}
           </span>
-          <button onClick={train} disabled={status === "training"} style={{
-            background: status === "training" ? "#CBD5E0" : "#0066CC",
-            border: "none", color: status === "training" ? "#4A5568" : "#FFFFFF",
+          <button onClick={seed} disabled={seeding} title="Restore HAM10000 ground-truth labels to diagnoses table" style={{
+            background: seeding ? "#CBD5E0" : "#F0F4F8",
+            border: "1px solid #CBD5E0", color: seeding ? "#4A5568" : "#4A5568",
+            padding: "10px 18px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
+            fontSize: "12px", letterSpacing: "2px", fontWeight: "700",
+            cursor: seeding ? "not-allowed" : "pointer",
+          }}>
+            {seeding ? "SEEDING..." : "SEED DATA"}
+          </button>
+          <button onClick={train} disabled={status === "training" || seeding} style={{
+            background: (status === "training" || seeding) ? "#CBD5E0" : "#0066CC",
+            border: "none", color: (status === "training" || seeding) ? "#4A5568" : "#FFFFFF",
             padding: "10px 28px", fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
             fontSize: "14px", letterSpacing: "2px", fontWeight: "700",
-            cursor: status === "training" ? "not-allowed" : "pointer",
+            cursor: (status === "training" || seeding) ? "not-allowed" : "pointer",
           }}>
             {status === "training" ? "TRAINING..." : modelTrained ? "RETRAIN" : "TRAIN MODEL"}
           </button>
         </div>
       </div>
+
+      {seedResult && !seedResult.error && (
+        <div style={{ color: "#10B981", fontSize: "13px", letterSpacing: "1px", marginBottom: "8px" }}>
+          ✓ Seeded {seedResult.inserted?.toLocaleString()} diagnoses from HAM10000 ground truth
+          {seedResult.skipped > 0 && <span style={{ color: "#718096" }}> · {seedResult.skipped} skipped</span>}
+          {" — "}<span style={{ color: "#4A5568" }}>ready to TRAIN</span>
+        </div>
+      )}
+      {seedResult?.error && (
+        <div style={{ color: "#EF4444", fontSize: "13px", marginBottom: "8px" }}>⚠ {seedResult.error}</div>
+      )}
 
       {status === "training" && (
         <div style={{ color: "#0066CC", fontSize: "13px", letterSpacing: "2px" }}>
@@ -88,7 +161,12 @@ function TrainPanel({ onTrained }) {
       )}
 
       {status === "error" && (
-        <div style={{ color: "#EF4444", fontSize: "13px" }}>⚠ Training failed. Check backend logs.</div>
+        <div style={{ color: "#EF4444", fontSize: "13px" }}>
+          ⚠ {result?.error || "Training failed. Check backend logs."}
+          {result?.error?.toLowerCase().includes("enough data") && (
+            <span style={{ color: "#4A5568" }}> — click <strong>SEED DATA</strong> first to restore training labels</span>
+          )}
+        </div>
       )}
 
       {result && status === "done" && (

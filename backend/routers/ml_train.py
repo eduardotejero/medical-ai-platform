@@ -4,7 +4,7 @@ from sqlalchemy import text
 from database import get_db
 from pydantic import BaseModel
 from typing import Optional
-import pickle, os, json
+import pickle, os, json, csv, threading
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -17,10 +17,23 @@ import mlflow.sklearn
 
 router = APIRouter()
 
+_training_running = False
+_train_error: str = None
+
 DIAGNOSES = [
     "Melanocytic Nevi", "Melanoma", "Benign Keratosis",
     "Basal Cell Carcinoma", "Actinic Keratosis", "Vascular Lesion", "Dermatofibroma"
 ]
+CSV_PATH     = "/app/data/GroundTruth.csv"
+LABEL_MAP    = {
+    "MEL": "Melanoma", "NV": "Melanocytic Nevi", "BCC": "Basal Cell Carcinoma",
+    "AKIEC": "Actinic Keratosis", "BKL": "Benign Keratosis",
+    "DF": "Dermatofibroma", "VASC": "Vascular Lesion",
+}
+SEVERITY_MAP = {
+    "Melanoma": 5, "Actinic Keratosis": 3, "Basal Cell Carcinoma": 3,
+    "Vascular Lesion": 2, "Melanocytic Nevi": 1, "Benign Keratosis": 1, "Dermatofibroma": 1,
+}
 MODEL_PATH   = "/app/skin_model.pkl"
 ENCODER_PATH = "/app/skin_encoder.pkl"
 RESULTS_PATH = "/app/train_results.json"
@@ -42,6 +55,11 @@ def model_status():
     return {"trained": os.path.exists(MODEL_PATH)}
 
 
+@router.get("/training-status")
+def get_training_status():
+    return {"running": _training_running, "error": _train_error}
+
+
 @router.get("/results")
 def get_results():
     if not os.path.exists(RESULTS_PATH):
@@ -52,8 +70,32 @@ def get_results():
     return data
 
 
+def _run_training_bg():
+    global _training_running, _train_error
+    from database import SessionLocal
+    db = SessionLocal()
+    try:
+        result = _do_train(db)
+        _train_error = result.get("error") if isinstance(result, dict) else None
+    except Exception as e:
+        _train_error = str(e)
+    finally:
+        db.close()
+        _training_running = False
+
+
 @router.post("/train")
-def train_model(db: Session = Depends(get_db)):
+def train_model():
+    global _training_running, _train_error
+    if _training_running:
+        return {"started": False, "message": "Training already in progress"}
+    _training_running = True
+    _train_error = None
+    threading.Thread(target=_run_training_bg, daemon=True).start()
+    return {"started": True}
+
+
+def _do_train(db: Session):
     query = text("""
         SELECT
             COALESCE(p.age, 45)                                    AS age,
@@ -106,7 +148,7 @@ def train_model(db: Session = Depends(get_db)):
             ("clf", LogisticRegression(max_iter=1000, random_state=42))
         ])),
         ("random-forest",    RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)),
-        ("gradient-boosting", GradientBoostingClassifier(n_estimators=100, random_state=42)),
+        ("gradient-boosting", GradientBoostingClassifier(n_estimators=50, random_state=42)),
     ]
 
     runs = []
@@ -118,7 +160,7 @@ def train_model(db: Session = Depends(get_db)):
             with mlflow.start_run(run_name=name):
                 clf.fit(X_train, y_train)
                 acc = float(accuracy_score(y_test, clf.predict(X_test)))
-                cv  = float(cross_val_score(clf, X, y, cv=5, n_jobs=-1).mean())
+                cv  = float(cross_val_score(clf, X, y, cv=3, n_jobs=-1).mean())
                 mlflow.log_param("model", name)
                 mlflow.log_metric("accuracy", acc)
                 mlflow.log_metric("cv_mean", cv)
@@ -126,7 +168,7 @@ def train_model(db: Session = Depends(get_db)):
         except Exception:
             clf.fit(X_train, y_train)
             acc = float(accuracy_score(y_test, clf.predict(X_test)))
-            cv  = float(cross_val_score(clf, X, y, cv=5, n_jobs=-1).mean())
+            cv  = float(cross_val_score(clf, X, y, cv=3, n_jobs=-1).mean())
 
         runs.append({"name": name, "accuracy": round(acc, 4), "cv_mean": round(cv, 4)})
         if acc > best_acc:
@@ -167,6 +209,47 @@ def train_model(db: Session = Depends(get_db)):
         json.dump(result, f)
 
     return {"status": "trained", **result}
+
+
+@router.post("/seed-diagnoses")
+def seed_diagnoses(db: Session = Depends(get_db)):
+    """Re-seed diagnoses table from HAM10000 GroundTruth.csv."""
+    from models import Patient, Diagnosis
+    if not os.path.exists(CSV_PATH):
+        return {"error": "GroundTruth.csv not found at " + CSV_PATH}
+
+    # Clear existing ground-truth diagnoses (confidence == 1.0) to avoid duplicates
+    db.query(Diagnosis).filter(Diagnosis.confidence == 1.0).delete()
+    db.commit()
+
+    inserted = skipped = 0
+    batch = []
+    with open(CSV_PATH, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            image_id = row["image"]
+            label_col = max(LABEL_MAP.keys(), key=lambda k: float(row.get(k, 0) or 0))
+            diagnosis_name = LABEL_MAP[label_col]
+            patient = db.query(Patient).filter(Patient.patient_code == image_id).first()
+            if not patient:
+                skipped += 1
+                continue
+            batch.append(Diagnosis(
+                patient_id=patient.id,
+                diagnosis=diagnosis_name,
+                severity=SEVERITY_MAP[diagnosis_name],
+                confidence=1.0,
+            ))
+            inserted += 1
+            if len(batch) >= 500:
+                db.bulk_save_objects(batch)
+                db.commit()
+                batch = []
+    if batch:
+        db.bulk_save_objects(batch)
+        db.commit()
+
+    return {"inserted": inserted, "skipped": skipped}
 
 
 @router.post("/predict")

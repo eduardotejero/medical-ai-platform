@@ -43,3 +43,9 @@ class DiagnosisResponse(DiagnosisCreate):
 
     class Config:
         from_attributes = True
+
+class CVResultCreate(BaseModel):
+    patient_id: int
+    image_data: str        # base64 data-URL
+    diagnosis: str
+    confidence: float

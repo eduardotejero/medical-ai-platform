@@ -47,6 +47,7 @@ def parse_message(raw: str) -> dict:
         for segment in msg:
             if str(segment[0]) == 'OBX':
                 observations.append({
+                    "value_type": str(segment[2]),
                     "code": str(segment[3]),
                     "value": str(segment[5]),
                     "units": str(segment[6]),

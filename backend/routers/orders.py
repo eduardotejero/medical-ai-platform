@@ -42,7 +42,7 @@ def generate_hl7(order_id: int, patient_id: int, patient_code: str,
         f"ORC|NW|{num}|||SC||||{ts}|||",
         f"OBR|1|{num}||SKIN^{test_type}^L|||{ts}||||||||||||||||",
     ]
-    return "\r\n".join(segments)
+    return "\r".join(segments)
 
 
 def _push_to_hl7(raw_message: str):

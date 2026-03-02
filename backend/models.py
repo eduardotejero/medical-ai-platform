@@ -40,3 +40,12 @@ class TestOrder(Base):
     hl7_message = Column(Text)
     status = Column(String(20), default="PENDING")
     created_at = Column(TIMESTAMP, server_default=func.now())
+
+class CVResult(Base):
+    __tablename__ = "cv_results"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"))
+    image_data = Column(Text)          # base64 data-URL
+    diagnosis = Column(String(100))
+    confidence = Column(Float)
+    analyzed_at = Column(TIMESTAMP, server_default=func.now())

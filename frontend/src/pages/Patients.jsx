@@ -58,6 +58,7 @@ function PatientDetail({ patient, onDelete }) {
   const [lastOrderId, setLastOrderId] = useState(null)
   const [diagnoses, setDiagnoses] = useState([])
   const [predSaved, setPredSaved] = useState(false)
+  const [cvResult, setCvResult] = useState(null)
 
   useEffect(() => {
     axios.get(`${BACKEND}/api/v1/ml/status`)
@@ -66,20 +67,29 @@ function PatientDetail({ patient, onDelete }) {
   }, [])
 
   useEffect(() => {
-    if (!patient) return
+    if (!patient) {
+      setDeleting(false)
+      setConfirmDelete(false)
+      return
+    }
     setClinical([])
     setConfirmDelete(false)
+    setDeleting(false)
     setPrediction(null)
     setOrderStatus(null)
     setLastOrderId(null)
     setDiagnoses([])
     setPredSaved(false)
+    setCvResult(null)
     axios.get(`${BACKEND}/api/v1/clinical/${patient.id}`)
       .then(r => setClinical(r.data.slice().sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))))
       .catch(() => setClinical([]))
     axios.get(`${BACKEND}/api/v1/clinical/diagnoses/${patient.id}`)
       .then(r => setDiagnoses(r.data))
       .catch(() => setDiagnoses([]))
+    axios.get(`${BACKEND}/api/v1/clinical/cv-result/${patient.id}`)
+      .then(r => r.data.exists ? setCvResult(r.data) : setCvResult(null))
+      .catch(() => setCvResult(null))
   }, [patient])
 
   const savePrediction = async () => {
@@ -271,9 +281,9 @@ function PatientDetail({ patient, onDelete }) {
       {diagnoses.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
           <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "12px" }}>
-            DIAGNOSES ({diagnoses.length})
+            LAST DIAGNOSIS
           </div>
-          {diagnoses.slice(0, 3).map((d, i) => (
+          {diagnoses.slice(0, 1).map((d, i) => (
             <div key={i} style={{
               background: "#F0F4F8",
               border: "1px solid #CBD5E0",
@@ -301,6 +311,47 @@ function PatientDetail({ patient, onDelete }) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Last CV Analysis */}
+      {cvResult && (
+        <div style={{ marginBottom: "24px", background: "#F0F4F8", border: "1px solid #CBD5E0", padding: "14px 16px" }}>
+          <div style={{ color: "#4A5568", fontSize: "12px", letterSpacing: "3px", marginBottom: "12px" }}>
+            LAST CV ANALYSIS
+          </div>
+          <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+            <img
+              src={cvResult.image_data}
+              alt="skin lesion"
+              style={{ width: "110px", height: "110px", objectFit: "cover", border: "1px solid #CBD5E0", flexShrink: 0 }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ color: "#718096", fontSize: "11px", letterSpacing: "1px", marginBottom: "6px" }}>
+                {cvResult.analyzed_at ? new Date(cvResult.analyzed_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—"}
+              </div>
+              <div style={{ color: "#1A202C", fontSize: "15px", fontWeight: "700", marginBottom: "6px" }}>
+                {cvResult.diagnosis}
+              </div>
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <span style={{ color: "#0066CC", fontSize: "18px", fontWeight: "700" }}>
+                  {(cvResult.confidence * 100).toFixed(1)}%
+                </span>
+                <span style={{ color: "#718096", fontSize: "11px", letterSpacing: "1px" }}>CONFIDENCE</span>
+              </div>
+              <div style={{ marginTop: "8px" }}>
+                <span style={{
+                  background: severityColor(SEVERITY[cvResult.diagnosis] || 1),
+                  color: "#FFFFFF", padding: "2px 8px", fontSize: "11px", letterSpacing: "1px",
+                }}>
+                  SEV {SEVERITY[cvResult.diagnosis] || 1}
+                </span>
+                <span style={{ marginLeft: "8px", color: "#718096", fontSize: "11px" }}>
+                  Computer Vision · ResNet18
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -472,7 +523,7 @@ function PatientDetail({ patient, onDelete }) {
 }
 
 function CreatePatientModal({ onClose, onCreated }) {
-  const [formData, setFormData] = useState({ patient_code: "", age: "", gender: "" })
+  const [formData, setFormData] = useState({ patient_code: "", age: "", gender: "", fitzpatrick_type: "" })
   const [error, setError] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -489,6 +540,7 @@ function CreatePatientModal({ onClose, onCreated }) {
         patient_code: formData.patient_code.trim(),
         age: formData.age !== "" ? parseInt(formData.age) : null,
         gender: formData.gender || null,
+        fitzpatrick_type: formData.fitzpatrick_type !== "" ? parseInt(formData.fitzpatrick_type) : null,
       }
       const res = await axios.post(`${BACKEND}/api/v1/patients/`, payload)
       onCreated(res.data)
@@ -584,6 +636,23 @@ function CreatePatientModal({ onClose, onCreated }) {
                 <option value="Other">Other</option>
               </select>
             </div>
+          </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={labelStyle}>FITZPATRICK SKIN TYPE</label>
+            <select
+              value={formData.fitzpatrick_type}
+              onChange={e => setFormData(f => ({ ...f, fitzpatrick_type: e.target.value }))}
+              style={fieldStyle}
+            >
+              <option value="">—</option>
+              <option value="1">Type I — Always burns, never tans (very fair)</option>
+              <option value="2">Type II — Usually burns, sometimes tans (fair)</option>
+              <option value="3">Type III — Sometimes burns, always tans (medium)</option>
+              <option value="4">Type IV — Rarely burns, always tans (olive)</option>
+              <option value="5">Type V — Very rarely burns (brown)</option>
+              <option value="6">Type VI — Never burns (dark brown/black)</option>
+            </select>
           </div>
 
           {error && (

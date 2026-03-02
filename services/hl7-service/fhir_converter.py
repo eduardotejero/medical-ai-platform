@@ -36,10 +36,9 @@ def hl7_to_fhir_observations(observations: list, patient_id: str) -> list:
         code_parts = obs.get("code", "").split("^")
         code = code_parts[0]
         display = code_parts[1] if len(code_parts) > 1 else code
-        try:
-            value = float(obs.get("value", 0))
-        except ValueError:
-            value = 0.0
+        value_type = obs.get("value_type", "NM")
+        raw_value = obs.get("value", "")
+        abnormal_flag = obs.get("abnormal_flag", "") or "N"
 
         fhir_obs = {
             "resourceType": "Observation",
@@ -50,13 +49,23 @@ def hl7_to_fhir_observations(observations: list, patient_id: str) -> list:
                 "text": display
             },
             "subject": {"reference": f"Patient/{patient_id}"},
-            "valueQuantity": {
-                "value": value,
+            "interpretation": [{"coding": [{"code": abnormal_flag}]}]
+        }
+
+        if value_type in ("NM", "SN"):
+            try:
+                num_value = float(raw_value)
+            except (ValueError, TypeError):
+                num_value = 0.0
+            fhir_obs["valueQuantity"] = {
+                "value": num_value,
                 "unit": obs.get("units", ""),
                 "system": "http://unitsofmeasure.org"
-            },
-            "interpretation": [{"coding": [{"code": obs.get("abnormal_flag", "N")}]}]
-        }
+            }
+        else:
+            # ST, CWE, TX, etc. → valueString
+            fhir_obs["valueString"] = raw_value
+
         fhir_observations.append(fhir_obs)
     return fhir_observations
 

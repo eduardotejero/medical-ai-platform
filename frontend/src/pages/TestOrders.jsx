@@ -22,20 +22,38 @@ const STATUS_COLORS = {
 }
 const FILTERS = ["ALL", "PENDING", "COMPLETED", "CANCELLED"]
 
-function generateORU(order, diagnosis, confidence) {
+function generateORU(order, diagnosis, confidence, severity, source) {
   const ts = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14)
   const oid = String(order.id).padStart(6, "0")
+  const rid = `RES${oid}`
   const dob = order.patient_age
     ? `${new Date().getFullYear() - order.patient_age}0101` : ""
   const gender = (order.patient_gender || "U")[0].toUpperCase()
+  const sev = severity || SEVERITY[diagnosis] || 1
   const confPct = (confidence * 100).toFixed(1)
+  const abnFlag = sev >= 4 ? "H" : sev === 3 ? "L" : "N"
+  const confFlag = parseFloat(confPct) >= 80 ? "N" : "L"
+  const method = source === "cv"
+    ? "Computer Vision (ResNet18 CNN)"
+    : source === "ml"
+      ? "Machine Learning (Clinical Data)"
+      : "Manual Assessment"
+  const interpretation = sev >= 4
+    ? "HIGH RISK — URGENT CLINICAL REVIEW REQUIRED"
+    : sev === 3
+      ? "MODERATE RISK — FOLLOW-UP RECOMMENDED"
+      : "LOW RISK — ROUTINE MONITORING"
   return [
-    `MSH|^~\\&|MEDICALAI|HOSPITAL|LAB|HOSPITAL|${ts}||ORU^R01|RES${oid}|P|2.5`,
-    `PID|1|${order.patient_id}|${order.patient_code}^^^HOSPITAL^MR|||${dob}|${gender}`,
-    `OBR|1|ORD${oid}||SKIN^${order.test_type || "Skin Lesion Analysis"}^L|||${ts}`,
-    `OBX|1|ST|79306^Skin Lesion Diagnosis^L||${diagnosis}||||||F`,
-    `OBX|2|NM|Confidence^Confidence^L||${confPct}|%|||||F`,
-  ].join("\r\n")
+    `MSH|^~\\&|MEDICALAI|HOSPITAL|LAB|HOSPITAL|${ts}||ORU^R01|${rid}|P|2.5`,
+    `PID|1||${order.patient_code}^^^HOSPITAL^MR||Unknown^Patient||${dob}|${gender}`,
+    `ORC|RE|ORD${oid}|${rid}||CM||||${ts}|||SYS^MEDICALAI^AI`,
+    `OBR|1|ORD${oid}|${rid}|SKIN_ANALYSIS^Skin Lesion Analysis^L|||${ts}||||||||||||||||F`,
+    `OBX|1|ST|79306-2^Skin lesion finding^LN||${diagnosis}||${abnFlag === "H" ? "MALIGNANT" : abnFlag === "L" ? "BORDERLINE" : "BENIGN"}|${abnFlag}|||F`,
+    `OBX|2|NM|89243-0^Diagnostic confidence^LN||${confPct}|%|70-100|${confFlag}|||F`,
+    `OBX|3|NM|70738-4^Severity score^LN||${sev}|{score}|1-5|${abnFlag}|||F`,
+    `OBX|4|ST|48767-8^Analysis method^LN||${method}||||||F`,
+    `OBX|5|ST|71480-3^Clinical interpretation^LN||${interpretation}||||||F`,
+  ].join("\r")
 }
 
 // ── Order list (left column) ────────────────────────────────────────────────
@@ -170,7 +188,8 @@ function DetailPanel({ order, onOrderUpdated }) {
       const fd = new FormData()
       fd.append("file", imageFile)
       const r = await axios.post(`${CV_SVC}/analyze`, fd)
-      setCvResult({ diagnosis: r.data.diagnosis, confidence: r.data.confidence })
+      const cls = r.data.classification
+      setCvResult({ diagnosis: cls.diagnosis, confidence: cls.confidence, probabilities: cls.probabilities })
     } catch (_) {
       setCvResult({ error: "CV service unavailable (port 8001)." })
     }
@@ -196,11 +215,29 @@ function DetailPanel({ order, onOrderUpdated }) {
         severity: SEVERITY[proposedDx] || 1,
         confidence: conf,
       })
-      // 3. ORU^R01 → HL7 feed
-      const oruMsg = generateORU(order, proposedDx, conf)
+      // 3. Save CV image if available
+      if (cvResult?.diagnosis && !cvResult.error && imageFile) {
+        try {
+          const base64 = await new Promise((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (e) => resolve(e.target.result)
+            reader.readAsDataURL(imageFile)
+          })
+          await axios.post(`${BACKEND}/api/v1/clinical/cv-result/`, {
+            patient_id: order.patient_id,
+            image_data: base64,
+            diagnosis: cvResult.diagnosis,
+            confidence: cvResult.confidence,
+          })
+        } catch (_) {}
+      }
+      // 4. ORU^R01 → HL7 feed
+      const sev = SEVERITY[proposedDx] || 1
+      const src = cvResult?.confidence ? "cv" : mlResult?.confidence ? "ml" : "manual"
+      const oruMsg = generateORU(order, proposedDx, conf, sev, src)
       setOruPreview(oruMsg)
       try { await axios.post(`${HL7_SVC}/messages`, { raw_message: oruMsg }) } catch (_) {}
-      // 4. Mark COMPLETED
+      // 5. Mark COMPLETED
       await axios.patch(`${BACKEND}/api/v1/orders/${order.id}/status`, { status: "COMPLETED" })
       onOrderUpdated(order.id, "COMPLETED")
       setSaved(true)
